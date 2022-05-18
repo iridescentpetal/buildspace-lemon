@@ -13,9 +13,9 @@ contract WavePortal {
     }
 
     function wave() public {
-        totalWaves++;
+        ++totalWaves;
         console.log("%s has waved!", msg.sender);
-        _waveBalance[msg.sender]++;
+        _waveBalance[msg.sender] += 1;
     }
 
     function getTotalWaves() public view returns (uint256) {
