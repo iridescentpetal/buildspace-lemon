@@ -5,17 +5,31 @@ pragma solidity ^0.8.4;
 import "hardhat/console.sol";
 
 contract WavePortal {
-    uint256 totalWaves;
-    mapping (address => uint256) private _waveBalance;
 
-    constructor() {
-        console.log("Waving from the WavePortal ~~~~");
+    event NewWave(address indexed from, uint256 timestamp, string message);
+
+    struct Wave {
+        address waver;
+        string message;
+        uint256 timestamp;
     }
 
-    function wave() public {
+    uint256 totalWaves;
+    Wave[] waves;
+    mapping (address => Wave[]) private _waveBalance;
+
+    constructor() {
+        console.log("I am smart contract // WavePortal ~~~~");
+    }
+
+    function wave(string memory _message) public {
         ++totalWaves;
-        console.log("%s has waved!", msg.sender);
-        _waveBalance[msg.sender] += 1;
+        console.log("%s waved w/ message %s", msg.sender, _message);
+
+        waves.push(Wave(msg.sender, _message, block.timestamp));
+        emit NewWave(msg.sender, block.timestamp, _message);
+
+        _waveBalance[msg.sender].push(Wave(msg.sender, _message, block.timestamp));
     }
 
     function getTotalWaves() public view returns (uint256) {
@@ -23,7 +37,15 @@ contract WavePortal {
         return totalWaves;
     }
 
-    function getTotalWavesForAddress(address waver) public view returns (uint256) {
-        return _waveBalance[waver];
+    function getAllWaves() public view returns (Wave[] memory) {
+        return waves;
+    }
+
+    function getTotalWavesForAddress(address waver_address) public view returns (Wave[] memory waves_per_address) {
+        if (_waveBalance[waver_address].length > 0) {
+            return _waveBalance[waver_address];
+        } 
+        // If no waves found, revert the transaction.
+        revert();
     }
 }

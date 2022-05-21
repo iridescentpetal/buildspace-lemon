@@ -10,18 +10,25 @@ const main = async () => {
     console.log("Contract deployed by:", owner.address);
 
     await waveContract.getTotalWaves();
-    await waveContract.wave();
-    await waveContract.wave();
+
+    let waveTxn = await waveContract.wave("A message!");
+    await waveTxn.wait(); // Wait for the transaction to be mined
 
     await waveContract.getTotalWaves();
 
-    await waveContract.connect(mysteryWaver).wave();
+    await waveContract.connect(mysteryWaver).wave("mystery waver is waving!");
 
     await waveContract.getTotalWaves();
 
-    console.log('owner has waved %d times', await waveContract.getTotalWavesForAddress(owner.address));
-    console.log('mysteryWaver has waved %d times', await waveContract.getTotalWavesForAddress(mysteryWaver.address));
+    const [_, randomPerson] = await hre.ethers.getSigners();
+    waveTxn = await waveContract.connect(randomPerson).wave("Another message!");
+    await waveTxn.wait(); // Wait for the transaction to be mined
 
+    console.log('owner\'s waves:', await waveContract.getTotalWavesForAddress(owner.address));
+    console.log('mysteryWaver\'s waves', await waveContract.getTotalWavesForAddress(mysteryWaver.address));
+
+    let allWaves = await waveContract.getAllWaves();
+    console.log(allWaves);
   };
   
   async function runMain() {
